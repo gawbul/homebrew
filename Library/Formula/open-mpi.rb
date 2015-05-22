@@ -1,15 +1,15 @@
-require 'formula'
-
 class OpenMpi < Formula
-  homepage 'http://www.open-mpi.org/'
-  url 'http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-1.8.3.tar.bz2'
-  sha1 '4be9c5d2a8baee6a80bde94c6485931979a428fe'
+  homepage "https://www.open-mpi.org/"
+  # Wait for 1.8.6 and skip 1.8.5 due to a severe memory leak on OS X:
+  # https://github.com/open-mpi/ompi/issues/579
+  url "https://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-1.8.4.tar.bz2"
+  sha256 "23158d916e92c80e2924016b746a93913ba7fae9fff51bf68d5c2a0ae39a2f8a"
+  revision 1
 
   bottle do
-    revision 1
-    sha1 "6f2e83991f28267fb693fdd840d6db244c39c1ad" => :yosemite
-    sha1 "605dc42b155eeda69592be9b63524a4323ebfaf5" => :mavericks
-    sha1 "4bd58e35a701b7b9bca3092d852b746e5975a866" => :mountain_lion
+    sha256 "1dd17f0b0325dd607c46a4bc5ff8e047403c4ef0a94c5acf060e59ab49fd6338" => :yosemite
+    sha256 "a18d196cc10738fe4ba8ca10440e75aeef15679c7af803bf11e2b8f57f0fc745" => :mavericks
+    sha256 "8313511a6bd0f9ae9b6390bd3952c67982372873ea4ba59f54c3ad2ea56032ec" => :mountain_lion
   end
 
   deprecated_option "disable-fortran" => "without-fortran"
@@ -18,11 +18,11 @@ class OpenMpi < Formula
   option "with-mpi-thread-multiple", "Enable MPI_THREAD_MULTIPLE"
   option :cxx11
 
-  conflicts_with 'mpich2', :because => 'both install mpi__ compiler wrappers'
-  conflicts_with 'lcdf-typetools', :because => 'both install same set of binaries.'
+  conflicts_with "mpich2", :because => "both install mpi__ compiler wrappers"
+  conflicts_with "lcdf-typetools", :because => "both install same set of binaries."
 
   depends_on :fortran => :recommended
-  depends_on 'libevent'
+  depends_on "libevent"
 
   def install
     ENV.cxx11 if build.cxx11?
@@ -37,17 +37,40 @@ class OpenMpi < Formula
     args << "--disable-mpi-fortran" if build.without? "fortran"
     args << "--enable-mpi-thread-multiple" if build.with? "mpi-thread-multiple"
 
-    system './configure', *args
-    system 'make', 'all'
-    system 'make', 'check'
-    system 'make', 'install'
+    system "./configure", *args
+    system "make", "all"
+    system "make", "check"
+    system "make", "install"
 
     # If Fortran bindings were built, there will be stray `.mod` files
     # (Fortran header) in `lib` that need to be moved to `include`.
     include.install Dir["#{lib}/*.mod"]
 
     # Move vtsetup.jar from bin to libexec.
-    libexec.install bin/'vtsetup.jar'
-    inreplace bin/'vtsetup', '$bindir/vtsetup.jar', '$prefix/libexec/vtsetup.jar'
+    libexec.install bin/"vtsetup.jar"
+    inreplace bin/"vtsetup", "$bindir/vtsetup.jar", "$prefix/libexec/vtsetup.jar"
+  end
+
+  test do
+    (testpath/"hello.c").write <<-EOS.undent
+      #include <mpi.h>
+      #include <stdio.h>
+
+      int main()
+      {
+        int size, rank, nameLen;
+        char name[MPI_MAX_PROCESSOR_NAME];
+        MPI_Init(NULL, NULL);
+        MPI_Comm_size(MPI_COMM_WORLD, &size);
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        MPI_Get_processor_name(name, &nameLen);
+        printf("[%d/%d] Hello, world! My name is %s.\\n", rank, size, name);
+        MPI_Finalize();
+        return 0;
+      }
+    EOS
+    system "#{bin}/mpicc", "hello.c", "-o", "hello"
+    system "./hello"
+    system "#{bin}/mpirun", "-np", "4", "./hello"
   end
 end

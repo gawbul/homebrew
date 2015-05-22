@@ -6,15 +6,17 @@ class Wxmac < Formula
   sha1 "6461eab4428c0a8b9e41781b8787510484dea800"
 
   bottle do
-    revision 8
-    sha1 "42ad0a415013533981111c93a33a1a07fd6034ac" => :yosemite
-    sha1 "0bc175a25820885e15badf56745f99338f77b771" => :mavericks
-    sha1 "d5f2ca56c1e7f27c43c714824a411740f1536b2b" => :mountain_lion
+    revision 9
+    sha1 "7a63c6715dea44ef7eee683355458e9203fb723a" => :yosemite
+    sha1 "5e6e114cff5901ec6f7586a844df713dc376fcf7" => :mavericks
+    sha1 "2f7ab6db7de665c76abe4546672e58cd48973c13" => :mountain_lion
   end
 
   depends_on "jpeg"
   depends_on "libpng"
   depends_on "libtiff"
+
+  option "with-stl", "use standard C++ classes for everything"
 
   # Various fixes related to Yosemite. Revisit in next stable release.
   # Please keep an eye on http://trac.wxwidgets.org/ticket/16329 as well
@@ -52,7 +54,10 @@ class Wxmac < Formula
       "--enable-clipboard",
       "--enable-webkit",
       "--enable-svg",
-      "--enable-mediactrl",
+      # On 64-bit, enabling mediactrl leads to wxconfig trying to pull
+      # in a non-existent 64 bit QuickTime framework. This is submitted
+      # upstream and will eventually be fixed, but for now...
+      MacOS.prefer_64_bit? ? "--disable-mediactrl" : "--enable-mediactrl",
       "--enable-graphics_ctx",
       "--enable-controls",
       "--enable-dataviewctrl",
@@ -63,6 +68,8 @@ class Wxmac < Formula
       # This is the default option, but be explicit
       "--disable-monolithic"
     ]
+
+    args << "--enable-stl" if build.with? "stl"
 
     system "./configure", *args
     system "make", "install"

@@ -1,14 +1,12 @@
-require "formula"
-
 class GtkDoc < Formula
   homepage "http://www.gtk.org/gtk-doc/"
-  url "http://ftp.gnome.org/pub/GNOME/sources/gtk-doc/1.20/gtk-doc-1.20.tar.xz"
-  sha256 "3e6ecf134dbf92a74c24d79848fea3a48e59ab95408a38c6405905d95a293011"
+  url "https://download.gnome.org/sources/gtk-doc/1.22/gtk-doc-1.22.tar.xz"
+  sha256 "932865c912ce0d81c9480bf957d3908bae6e18c0cf2ee33014d63b920047fca8"
 
   bottle do
-    sha1 "be13f6a01fed97680dfce7c18704885d6cb7ed8f" => :mavericks
-    sha1 "48b5f384aeebd39494794f46ed801f35f5bcfb6e" => :mountain_lion
-    sha1 "0f88dda0c51d73acebc3b2ec1513f67ff7d5c87c" => :lion
+    sha256 "654ae76d5e15f8461dbfd0be4ed8c52d67e7cc2dd4e8f4fc893fc9e5feedcd2f" => :yosemite
+    sha256 "2b617b6fe81f7cb8fdc7252208552879ba1af12a892e0abfdd70863e455d4a48" => :mavericks
+    sha256 "ec163f5b3edbfab4b35c5e213d66fe4f7b4f63130a64cc3ec635e3369ca12e79" => :mountain_lion
   end
 
   depends_on "pkg-config" => :build
@@ -28,6 +26,11 @@ class GtkDoc < Formula
                           "--prefix=#{prefix}",
                           "--with-xml-catalog=#{etc}/xml/catalog"
     system "make"
-    system "make install"
+    system "make", "install"
+  end
+
+  test do
+    system "#{bin}/gtkdoc-scan", "--module=test"
+    system "#{bin}/gtkdoc-mkdb", "--module=test"
   end
 end

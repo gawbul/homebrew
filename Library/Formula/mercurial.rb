@@ -1,17 +1,15 @@
-require 'formula'
-
 # No head build supported; if you need head builds of Mercurial, do so outside
 # of Homebrew.
 class Mercurial < Formula
-  homepage 'http://mercurial.selenic.com/'
-  url 'http://mercurial.selenic.com/release/mercurial-3.2.1.tar.gz'
-  sha1 '85463d7796ed44fb08b9d8d66e1390e92c3399ef'
+  homepage "http://mercurial.selenic.com/"
+  url "http://mercurial.selenic.com/release/mercurial-3.4.tar.gz"
+  sha256 "ff1da0545cdd46ebcf473176d55937a22bb55fff51cdff9d4c2f900fc80baf10"
 
   bottle do
     cellar :any
-    sha1 "9daa693a504f29da9ccd03863523dfa4b70e71fb" => :yosemite
-    sha1 "b720d9883ff7493a318d3296690bc5a9afd3c577" => :mavericks
-    sha1 "77804e4b1feee3b08225c37da0bb79665884fc23" => :mountain_lion
+    sha256 "073cf23fa2ff34cc66ce99c8535fcce979453e402802d483ebccf2d60d323d58" => :yosemite
+    sha256 "76fce90c4a1759495935a23fa8c515e844b08648f08ffd1d35adeb303bb47de6" => :mavericks
+    sha256 "fcac735e0d359616c6bd89f8b6966b8bf7a005af788716c5561a8b434ebb099b" => :mountain_lion
   end
 
   def install
@@ -19,16 +17,12 @@ class Mercurial < Formula
 
     system "make", "PREFIX=#{prefix}", "install-bin"
     # Install man pages, which come pre-built in source releases
-    man1.install 'doc/hg.1'
-    man5.install 'doc/hgignore.5', 'doc/hgrc.5'
+    man1.install "doc/hg.1"
+    man5.install "doc/hgignore.5", "doc/hgrc.5"
 
     # install the completion scripts
-    bash_completion.install 'contrib/bash_completion' => 'hg-completion.bash'
-    zsh_completion.install 'contrib/zsh_completion' => '_hg'
-
-    # install the merge tool default configs
-    # http://mercurial.selenic.com/wiki/Packaging#Things_to_note
-    (etc/"mercurial"/"hgrc.d").install "contrib/mergetools.hgrc" => "mergetools.rc"
+    bash_completion.install "contrib/bash_completion" => "hg-completion.bash"
+    zsh_completion.install "contrib/zsh_completion" => "_hg"
   end
 
   test do

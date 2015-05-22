@@ -1,19 +1,15 @@
 require 'formula'
 
 class Rabbitmq < Formula
-  homepage 'http://www.rabbitmq.com'
-  url 'https://www.rabbitmq.com/releases/rabbitmq-server/v3.4.1/rabbitmq-server-mac-standalone-3.4.1.tar.gz'
-  sha1 'f1cf93cbfe7d5b12d426819c890f9b688868180a'
+  homepage 'https://www.rabbitmq.com'
+  url 'https://www.rabbitmq.com/releases/rabbitmq-server/v3.5.1/rabbitmq-server-mac-standalone-3.5.1.tar.gz'
+  sha256 '6c5986d86d4ff93c945f5e70c995d033558dca94e5eabd4fb4833ea813489177'
 
   bottle do
-    sha1 "f60e1c485e5c415a1614631ca8ff9cd2024bcc33" => :yosemite
-    sha1 "6eb8e5c6108741dff767a108353a85a74f7aa833" => :mavericks
-    sha1 "c3fd2b3cc376bb4d7f63de5e4d96a1eebd15f6af" => :mountain_lion
+    sha256 "91c6f8814eced0b996580390325f55efdf83b40b8d5ac6898f31ccc7f26e9ef8" => :yosemite
+    sha256 "dcbe969881c390e288388a8a121878fb384a8cbf8d89f420862d6e9ef4f3a2c8" => :mavericks
+    sha256 "eb07306c5f3fb1932e90bcb98a8aad149a73a2a766b179ebfd5907f3cdd1225b" => :mountain_lion
   end
-
-  # Upstream fix for rabbitmqctl:
-  # http://hg.rabbitmq.com/rabbitmq-server/raw-rev/3f7c77cdafd8
-  patch :DATA
 
   depends_on 'simplejson' => :python if MacOS.version <= :leopard
 
@@ -94,18 +90,3 @@ class Rabbitmq < Formula
     EOS
   end
 end
-
-
-__END__
---- a/sbin/rabbitmqctl
-+++ b/sbin/rabbitmqctl
-@@ -21,7 +21,8 @@
-
- # rabbitmqctl starts distribution itself, so we need to make sure epmd
- # is running.
--${ERL_DIR}erl ${RABBITMQ_NAME_TYPE} rabbitmqctl-prelaunch-$$ -noinput -eval 'erlang:halt().'
-+${ERL_DIR}erl ${RABBITMQ_NAME_TYPE} rabbitmqctl-prelaunch-$$ -noinput \
-+-eval 'erlang:halt().' -boot "${CLEAN_BOOT_FILE}"
-
- # We specify Mnesia dir and sasl error logger since some actions
- # (e.g. forget_cluster_node --offline) require us to impersonate the
