@@ -1,25 +1,28 @@
 class ClangFormat < Formula
+  desc "Formatting tools for C, C++, Obj-C, Java, JavaScript, TypeScript"
   homepage "http://clang.llvm.org/docs/ClangFormat.html"
-  version "2015-04-21"
-
-  bottle do
-    cellar :any
-    sha256 "5abc150562cdde9a2a430da7c6fbdda5fa7d891adf4c9ef0a297b991972053ee" => :yosemite
-    sha256 "5e6a52851120f411ef20b3c7888399dbe54ce62966b665e9c018b4272ff16238" => :mavericks
-    sha256 "1c57ea1bd29c1702bf574ab4121b0f6e7a3c8851dc32cf8da53a2d90b9446c18" => :mountain_lion
-  end
+  version "2016-01-05"
 
   stable do
-    url "http://llvm.org/svn/llvm-project/llvm/tags/google/testing/2015-04-21/", :using => :svn
+    url "http://llvm.org/releases/3.7.1/llvm-3.7.1.src.tar.xz"
+    sha256 "be7794ed0cec42d6c682ca8e3517535b54555a3defabec83554dbc74db545ad5"
 
     resource "clang" do
-      url "http://llvm.org/svn/llvm-project/cfe/tags/google/testing/2015-04-21/", :using => :svn
+      url "http://llvm.org/releases/3.7.1/cfe-3.7.1.src.tar.xz"
+      sha256 "56e2164c7c2a1772d5ed2a3e57485ff73ff06c97dff12edbeea1acc4412b0674"
     end
 
     resource "libcxx" do
-      url "http://llvm.org/releases/3.6.0/libcxx-3.6.0.src.tar.xz"
-      sha1 "5445194366ae2291092fd2204030cb3d01ad6272"
+      url "http://llvm.org/releases/3.7.1/libcxx-3.7.1.src.tar.xz"
+      sha256 "357fbd4288ce99733ba06ae2bec6f503413d258aeebaab8b6a791201e6f7f144"
     end
+  end
+
+  bottle do
+    cellar :any_skip_relocation
+    sha256 "54dbe7695d83c9dcc08cce26f400f5d348d94d91076d70f795c0e11fbfe8df36" => :el_capitan
+    sha256 "f908cd465f5d9dc1f1732986967480ffa15473d7c83bdfbbdb3e9e9442750f15" => :yosemite
+    sha256 "cb8537c2d51fb29caf8f11b35adcd14362fbf575dcb1c7fbab2879884e5ca1b3" => :mavericks
   end
 
   head do
@@ -30,8 +33,8 @@ class ClangFormat < Formula
     end
 
     resource "libcxx" do
-      url "http://llvm.org/releases/3.6.0/libcxx-3.6.0.src.tar.xz"
-      sha1 "5445194366ae2291092fd2204030cb3d01ad6272"
+      url "http://llvm.org/releases/3.7.1/libcxx-3.7.1.src.tar.xz"
+      sha256 "357fbd4288ce99733ba06ae2bec6f503413d258aeebaab8b6a791201e6f7f144"
     end
   end
 
@@ -52,6 +55,7 @@ class ClangFormat < Formula
       bin.install "bin/clang-format"
     end
     bin.install "tools/clang/tools/clang-format/git-clang-format"
+    (share/"clang").install Dir["tools/clang/tools/clang-format/clang-format*"]
   end
 
   test do

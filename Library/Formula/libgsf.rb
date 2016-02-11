@@ -1,7 +1,14 @@
 class Libgsf < Formula
+  desc "I/O abstraction library for dealing with structured file formats"
   homepage "https://developer.gnome.org/gsf/"
-  url "https://download.gnome.org/sources/libgsf/1.14/libgsf-1.14.33.tar.xz"
-  sha256 "82dd38e0c1f497704bf3b43682fca2768886058f004b14e9b5d103596f8c6e6b"
+  url "https://download.gnome.org/sources/libgsf/1.14/libgsf-1.14.35.tar.xz"
+  sha256 "8fad55e6782bf72466c6335c6bdcb2552d9da10c655486c699b6464bac2ff847"
+
+  bottle do
+    sha256 "775e4b30af0be717cdec1cbd2d17947813307716c1cc459b8f52606809590550" => :el_capitan
+    sha256 "0279898c84119cc5099aa38dbaeb4c4d53083f6a0ea83d2dd6ec4ca8c2eaed14" => :yosemite
+    sha256 "b810c50c6792546d7e870c3eeedbfe205a95f94365bf82fff78be8dc704423c9" => :mavericks
+  end
 
   head do
     url "https://github.com/GNOME/libgsf.git"
@@ -10,12 +17,6 @@ class Libgsf < Formula
     depends_on "gnome-common" => :build
     depends_on "gtk-doc" => :build
     depends_on "libtool" => :build
-  end
-
-  bottle do
-    sha256 "14271c2772c66337c0e2a745ee5ff0ede489e0d98241d72f33d2ac0f14a54491" => :yosemite
-    sha256 "f9ee5d95f63ab462e12bf94e27578e1fe8d12c5deb5fd690feec49e4140f8828" => :mavericks
-    sha256 "2074d7a6866bcf220595784683c6669822b018d660da6300bb840106fb7edd26" => :mountain_lion
   end
 
   depends_on "pkg-config" => :build

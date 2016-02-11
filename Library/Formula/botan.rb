@@ -1,12 +1,24 @@
 class Botan < Formula
+  desc "Cryptographic algorithms and formats library in C++"
   homepage "http://botan.randombit.net/"
-  url "http://botan.randombit.net/releases/Botan-1.10.9.tgz"
-  sha1 "e1c8e97b214b23931f7dc8aba44306fbeca9055c"
+
+  stable do
+    url "http://botan.randombit.net/releases/Botan-1.10.12.tgz"
+    sha256 "affc3a79919577943f896e64d3e4a4dcc4970c5bf80cc98c7f3a3144745eac27"
+    # upstream ticket: https://bugs.randombit.net/show_bug.cgi?id=267
+    patch :DATA
+  end
 
   bottle do
-    sha1 "3f9096cdf4156db3af972765fe9b8bb58a7b7261" => :yosemite
-    sha1 "d2f2f165eccbd6db984b83149a1f1df1b66dadbb" => :mavericks
-    sha1 "26196739a9584d6b3a129e32d3a2358484d6d8ed" => :mountain_lion
+    cellar :any
+    sha256 "b7d45a848fead326d2e0a1dfbcacfd3c73bf0ad4b2ab62611cf78912db4053a7" => :el_capitan
+    sha256 "8dad1bfd83f841d095102056e3b4b769041b4abcb7bd126528f75259cd24f5ff" => :yosemite
+    sha256 "521e1f6578e799f5738c28bfd635cba3f210d777d019a240092bbf912ef83699" => :mavericks
+  end
+
+  devel do
+    url "http://botan.randombit.net/releases/Botan-1.11.28.tgz"
+    sha256 "a414c96f45b2707d4750d299ca03ec3fce5ada62ada1ba5cd012a9ace61f5932"
   end
 
   option "with-debug", "Enable debug build of Botan"
@@ -16,13 +28,14 @@ class Botan < Formula
   depends_on "pkg-config" => :build
   depends_on "openssl"
 
-  # upstream ticket: https://bugs.randombit.net/show_bug.cgi?id=267
-  patch :DATA
+  needs :cxx11 if build.devel?
 
   def install
+    ENV.cxx11 if build.devel?
+
     args = %W[
       --prefix=#{prefix}
-      --docdir=#{share}/doc
+      --docdir=share/doc
       --cpu=#{MacOS.preferred_arch}
       --cc=#{ENV.compiler}
       --os=darwin
@@ -40,7 +53,13 @@ class Botan < Formula
   end
 
   test do
-    assert_match /lcrypto/, shell_output("#{bin}/botan-config-1.10 --libs")
+    # stable version doesn't have `botan` executable
+    if !File.exist? bin/"botan"
+      assert_match "lcrypto", shell_output("#{bin}/botan-config-1.10 --libs")
+    else
+      assert_match /\A-----BEGIN PRIVATE KEY-----/,
+       shell_output("#{bin}/botan keygen")
+    end
   end
 end
 

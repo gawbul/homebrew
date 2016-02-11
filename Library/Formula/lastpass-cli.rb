@@ -1,14 +1,15 @@
 class LastpassCli < Formula
+  desc "LastPass command-line interface tool"
   homepage "https://github.com/lastpass/lastpass-cli"
-  url "https://github.com/lastpass/lastpass-cli/archive/v0.5.0.tar.gz"
-  sha256 "09e7b1e5c1520db2a34a49e7ae07e5b3a7555a4ed2490ed7b56f047065bca812"
+  url "https://github.com/lastpass/lastpass-cli/archive/v0.8.1.tar.gz"
+  sha256 "ba845a827501f3c49514e977c8de25e5950d3ea482d7a3c31090148310a83056"
   head "https://github.com/lastpass/lastpass-cli.git"
 
   bottle do
     cellar :any
-    sha256 "b881d418eb5bd553df3b4743df7487493fee59527f126a76781f9b477af7cc37" => :yosemite
-    sha256 "20c359cbc4c4e4cf79c7d7563539578063c6243788715a2b691aec5796e92709" => :mavericks
-    sha256 "626b8ca141ee1c798029024ccdacfcad78b71baf1c8ec4c615d7ab16e2c64ebc" => :mountain_lion
+    sha256 "b57ee688d9e9877f25a0ef566cff9a8c364f28e26c54b3c11eb338468cddfeb2" => :el_capitan
+    sha256 "4bd4bc58d9e433ecc229763b44d1b0c29312251fb0cff85a4afb5ca746f48767" => :yosemite
+    sha256 "fa6ad38499f5df9c9ac23f70d1a58094532032b35bcca4a23f1659e0f7725782" => :mavericks
   end
 
   option "with-doc", "Install man pages"

@@ -1,21 +1,13 @@
 class Goffice < Formula
+  desc "Gnumeric spreadsheet program"
   homepage "https://developer.gnome.org/goffice/"
-  url "https://download.gnome.org/sources/goffice/0.10/goffice-0.10.22.tar.xz"
-  sha256 "0206a87a323b52a874dc54491374245f9e1c5f62e93a2ce4a02fb444a26b0e28"
+  url "https://download.gnome.org/sources/goffice/0.10/goffice-0.10.27.tar.xz"
+  sha256 "3717b400fd190f18cf1dd7a16e1991b1f7c7cbdfeb1993656e7972347168d8c0"
 
   bottle do
-    revision 2
-    sha256 "8c94537b1917665098cc5b9ed4947fb54e8bec93d053bcc424c59c6b4b118c4a" => :yosemite
-    sha256 "9b4c25cda4b2b61038ab9b7c0fbab9ed7931e77be6e46148ca73479ae66b2fec" => :mavericks
-    sha256 "13958f27c96a72a9cf9e366cf29cdc070d65b6c2a2955f99db6dadfede7646c9" => :mountain_lion
-  end
-
-  # Fixes a crash with quad precision math when building using clang
-  # Will be included in the next release; patch from upstream commit.
-  # https://bugzilla.gnome.org/show_bug.cgi?id=749463
-  patch do
-    url "https://gist.githubusercontent.com/mistydemeo/71c77c48e36116b824b4/raw/2f70e9f1d847bfaea2f328e43b6c8cd0a609902b/goffice.patch"
-    sha256 "f51f9a149189c6ab9716716ee0170416c4847739f7bf866fbf388c246008f7e1"
+    sha256 "8bcaebdbad7414bc4605b5f3c6e591eeff7f3b881f7f9e9c38a46fb8b4cac46e" => :el_capitan
+    sha256 "189507e849c0ecc18396b54a6b67fe0eff65bed367dadce003758a794a762718" => :yosemite
+    sha256 "fe3b3b1b9677c586476edf7933704b22bab55390c76f93380e327203698aa2a8" => :mavericks
   end
 
   head do
@@ -38,7 +30,6 @@ class Goffice < Formula
   depends_on "librsvg"
   depends_on "pango"
   depends_on "pcre"
-  depends_on :x11
 
   def install
     args = %W[--disable-dependency-tracking --prefix=#{prefix}]

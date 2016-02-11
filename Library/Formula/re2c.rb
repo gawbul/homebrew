@@ -1,18 +1,18 @@
 class Re2c < Formula
+  desc "Generate C-based recognizers from regular expressions"
   homepage "http://re2c.org"
-  url "https://downloads.sourceforge.net/project/re2c/re2c/0.14.2/re2c-0.14.2.tar.gz"
-  sha256 "a702eb63977af4715555edb41eba3b47bbfdcdb44b566d146869a7db022f1c30"
+  url "https://downloads.sourceforge.net/project/re2c/0.15.3/re2c-0.15.3.tar.gz"
+  sha256 "f9d2a96c60a8c60d9c6c70e10590cbceaf0776d3115e7b3b35c7d7240cc1613b"
 
   bottle do
-    cellar :any
-    sha256 "968ea6c2d830f93ea6e28012e32329e05a848c5cbf77c4012b861275efeaf4b7" => :yosemite
-    sha256 "50e2a4b23a056cc242403b446f231268c8836c7bc2586d543c2a5af0faac4d02" => :mavericks
-    sha256 "1aae924b080f3d72da21a445681f125c03ae526617bec1e3ebb59c2eacbc1ebe" => :mountain_lion
+    cellar :any_skip_relocation
+    sha256 "9a548a61d9336f1496572cdeb0e878bdbafb5b37c15e7228a2484964fff9337c" => :el_capitan
+    sha256 "04878ac4a2996470f040650a7c5f5890df785c97f392c82193c0250d5e9efea9" => :yosemite
+    sha256 "0a20c12bf55cf36c11a3dc65a9a7dafd3028af79e560ab674556f0ee7e2c37df" => :mavericks
   end
 
   def install
-    system "./configure", "--disable-debug",
-                          "--disable-dependency-tracking",
+    system "./configure", "--disable-dependency-tracking",
                           "--prefix=#{prefix}"
     system "make", "install"
   end

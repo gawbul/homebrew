@@ -1,15 +1,15 @@
 class SpoofMac < Formula
+  desc "Spoof your MAC address in OS X"
   homepage "https://github.com/feross/SpoofMAC"
-  url "https://pypi.python.org/packages/source/S/SpoofMAC/SpoofMAC-2.0.4.tar.gz"
-  sha256 "eb623ead027c804d9e01e4418462c6da3319b05b09ce9b641080179ea2c9971d"
-
+  url "https://pypi.python.org/packages/source/S/SpoofMAC/SpoofMAC-2.1.0.tar.gz"
+  sha256 "02a6a1eaed85d0e2be52299db29cbc517f60d41eeca9897eff3d5bb1ca14f3ab"
   head "https://github.com/feross/SpoofMAC.git"
 
   bottle do
-    cellar :any
-    sha256 "8771adbc4f74098dbc6470cde08f808cec0e21b2efe61f7ebe5cfb84aafc9fd6" => :yosemite
-    sha256 "eb496422b56e593cfe96fd8d1596d2e3db1740d2f5edbd067567c9b5ed05969d" => :mavericks
-    sha256 "fcfa251ff925d5d325ed6edf25180a8e90d25de71ef5ed8c9a66d7a229b9724b" => :mountain_lion
+    cellar :any_skip_relocation
+    sha256 "2181c83712727b6e54ecdc867f5a6e804374ec2cf21f695712cfb0d7be0b3d6b" => :el_capitan
+    sha256 "9ecf8125c89c393c9d15862a4c567343858f2627f504271177399035c13753db" => :yosemite
+    sha256 "95e97494b2ab4fc0b4eff7df4e8efc892e948d3a4812a53ecf674491438caf70" => :mavericks
   end
 
   depends_on :python if MacOS.version <= :snow_leopard
@@ -44,7 +44,7 @@ class SpoofMac < Formula
         <string>#{plist_name}</string>
         <key>ProgramArguments</key>
         <array>
-          <string>#{bin}/spoof-mac</string>
+          <string>#{opt_bin}/spoof-mac</string>
           <string>randomize</string>
           <string>en0</string>
         </array>

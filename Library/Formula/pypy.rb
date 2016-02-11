@@ -1,17 +1,20 @@
 class Pypy < Formula
+  desc "Implementation of Python 2 in Python"
   homepage "http://pypy.org/"
-  url "https://bitbucket.org/pypy/pypy/downloads/pypy-2.5.1-src.tar.bz2"
-  sha256 "ddb3a580b1ee99c5a699172d74be91c36dda9a38946d4731d8c6a63120a3ba2a"
+  url "https://bitbucket.org/pypy/pypy/downloads/pypy-4.0.1-src.tar.bz2"
+  sha256 "29f5aa6ba17b34fd980e85172dfeb4086fdc373ad392b1feff2677d2d8aea23c"
 
   bottle do
     cellar :any
-    sha256 "5ea51028fcc8e52243be21a280826dfe516d16012121cd7d01dbeaa36dd9839b" => :yosemite
-    sha256 "907562de31fcb6be876099d4f560a175d83475084f9bd72a4a8d6957f769283f" => :mavericks
-    sha256 "5d7301690ffc81531d26aad3f2817720864e64489ffb6f54cc227925df14c46e" => :mountain_lion
+    sha256 "fc1f5dde107fd9887c49bfbbe6207db6623e162acae98786c4dc37d4c661753d" => :el_capitan
+    sha256 "a299cfdc148e56f982b4573482e589c62c7ae6630538db2d024c8076f0d9252a" => :yosemite
+    sha256 "80225ff2367f678288e2790cc0c265570209f41a2d2fc8f60655d7d5463a08fb" => :mavericks
   end
 
   depends_on :arch => :x86_64
   depends_on "pkg-config" => :build
+  depends_on "gdbm" => :recommended
+  depends_on "sqlite" => :recommended
   depends_on "openssl"
 
   option "without-bootstrap", "Translate Pypy with system Python instead of " \
@@ -21,17 +24,17 @@ class Pypy < Formula
 
   resource "bootstrap" do
     url "https://bitbucket.org/pypy/pypy/downloads/pypy-2.5.0-osx64.tar.bz2"
-    sha1 "ad47285526b1b3c14f4eecc874bb82a133a8e551"
+    sha256 "30b392b969b54cde281b07f5c10865a7f2e11a229c46b8af384ca1d3fe8d4e6e"
   end
 
   resource "setuptools" do
-    url "https://pypi.python.org/packages/source/s/setuptools/setuptools-14.3.1.tar.gz"
-    sha256 "8d5712b7debddddf75ba98e069036b138c89430497037a406b36e57f9bcfee20"
+    url "https://pypi.python.org/packages/source/s/setuptools/setuptools-19.4.tar.gz"
+    sha256 "214bf29933f47cf25e6faa569f710731728a07a19cae91ea64f826051f68a8cf"
   end
 
   resource "pip" do
-    url "https://pypi.python.org/packages/source/p/pip/pip-6.0.8.tar.gz"
-    sha1 "bd59a468f21b3882a6c9d3e189d40c7ba1e1b9bd"
+    url "https://pypi.python.org/packages/source/p/pip/pip-8.0.2.tar.gz"
+    sha256 "46f4bd0d8dfd51125a554568d646fe4200a3c2c6c36b9f2d06d2212148439521"
   end
 
   # https://bugs.launchpad.net/ubuntu/+source/gcc-4.2/+bug/187391
@@ -50,18 +53,22 @@ class Pypy < Formula
       python = buildpath/"bootstrap/bin/pypy"
     end
 
-    Dir.chdir "pypy/goal" do
+    cd "pypy/goal" do
       system python, buildpath/"rpython/bin/rpython",
              "-Ojit", "--shared", "--cc", ENV.cc, "--verbose",
              "--make-jobs", ENV.make_jobs, "targetpypystandalone.py"
-      system "install_name_tool", "-change", "@rpath/libpypy-c.dylib", libexec/"lib/libpypy-c.dylib", "pypy-c"
-      system "install_name_tool", "-id", opt_libexec/"lib/libpypy-c.dylib", "libpypy-c.dylib"
-      (libexec/"bin").install "pypy-c" => "pypy"
-      (libexec/"lib").install "libpypy-c.dylib"
     end
 
-    (libexec/"lib-python").install "lib-python/2.7"
-    libexec.install %w[include lib_pypy]
+    libexec.mkpath
+    cd "pypy/tool/release" do
+      package_args = %w[--archive-name pypy --targetdir . --nostrip]
+      package_args << "--without-gdbm" if build.without? "gdbm"
+      system python, "package.py", *package_args
+      system *%W[tar -C #{libexec} --strip-components 1 -xzf pypy.tar.bz2]
+    end
+
+    (libexec/"lib").install libexec/"bin/libpypy-c.dylib"
+    system *%W[install_name_tool -change @rpath/libpypy-c.dylib #{libexec}/lib/libpypy-c.dylib #{libexec}/bin/pypy]
 
     # The PyPy binary install instructions suggest installing somewhere
     # (like /opt) and symlinking in binaries as needed. Specifically,
@@ -69,19 +76,9 @@ class Pypy < Formula
     # scripts will find it.
     bin.install_symlink libexec/"bin/pypy"
     lib.install_symlink libexec/"lib/libpypy-c.dylib"
-
-    %w[setuptools pip].each do |r|
-      (libexec/r).install resource(r)
-    end
   end
 
   def post_install
-    # Precompile cffi extensions in lib_pypy
-    # list from create_cffi_import_libraries in pypy/tool/release/package.py
-    %w[_sqlite3 _curses syslog gdbm _tkinter].each do |module_name|
-      quiet_system bin/"pypy", "-c", "import #{module_name}"
-    end
-
     # Post-install, fix up the site-packages and install-scripts folders
     # so that user-installed Python software survives minor updates, such
     # as going from 1.7.0 to 1.7.1.
@@ -90,6 +87,12 @@ class Pypy < Formula
     prefix_site_packages.mkpath
 
     # Symlink the prefix site-packages into the cellar.
+    if !(libexec/"site-packages").symlink?
+      # fix the case where libexec/site-packages/site-packages was installed
+      rm_rf libexec/"site-packages/site-packages"
+      mv Dir[libexec/"site-packages/*"], prefix_site_packages
+      rm_rf libexec/"site-packages"
+    end
     libexec.install_symlink prefix_site_packages
 
     # Tell distutils-based installers where to put scripts
@@ -100,7 +103,7 @@ class Pypy < Formula
     EOF
 
     %w[setuptools pip].each do |pkg|
-      (libexec/pkg).cd do
+      resource(pkg).stage do
         system bin/"pypy", "-s", "setup.py", "--no-user-cfg", "install",
                "--force", "--verbose"
       end

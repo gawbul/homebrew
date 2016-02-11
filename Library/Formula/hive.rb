@@ -1,11 +1,12 @@
-require 'formula'
-
 class Hive < Formula
-  homepage 'https://hive.apache.org'
-  url 'https://www.apache.org/dyn/closer.cgi?path=hive/hive-1.1.0/apache-hive-1.1.0-bin.tar.gz'
-  sha1 'bf7e4752fa7208c3eda09f7a8aeba0f341239952'
+  desc "Hadoop-based data summarization, query, and analysis"
+  homepage "https://hive.apache.org"
+  url "https://www.apache.org/dyn/closer.cgi?path=hive/hive-1.2.1/apache-hive-1.2.1-bin.tar.gz"
+  sha256 "29d9780c4af887ef623bafe6a73ec6f1bea9759bbe31fb4aeeb5b0f68c4c9979"
 
-  depends_on 'hadoop'
+  bottle :unneeded
+
+  depends_on "hadoop"
   depends_on :java
 
   def install
@@ -25,5 +26,9 @@ class Hive < Formula
     You may need to set JAVA_HOME:
       export JAVA_HOME="$(/usr/libexec/java_home)"
     EOS
+  end
+
+  test do
+    assert_match /default/, shell_output("#{bin}/hive -e 'show databases;'")
   end
 end

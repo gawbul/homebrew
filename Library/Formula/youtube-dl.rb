@@ -1,18 +1,17 @@
-require "formula"
-
 # Please only update to versions that are published on PyPi as there are too
 # many releases for us to update to every single one:
 # https://pypi.python.org/pypi/youtube_dl
 class YoutubeDl < Formula
+  desc "Download YouTube videos from the command-line"
   homepage "https://rg3.github.io/youtube-dl/"
-  url "https://yt-dl.org/downloads/2015.05.20/youtube-dl-2015.05.20.tar.gz"
-  sha256 "94de6dfdca5fd2c2cf83961b204970cc98aa9c3620736100116de07d54532eb3"
+  url "https://yt-dl.org/downloads/2016.02.10/youtube-dl-2016.02.10.tar.gz"
+  sha256 "386cfc2128eebbedf2c4ffdb41537aede509436cdb6b6ef596da4eece376d023"
 
   bottle do
-    cellar :any
-    sha256 "8188b7967f7c3aa44861384fa4540718a84ee1028ddd8173f4e2131c61412462" => :yosemite
-    sha256 "8b819411d88a6b413a644c8b2a8e585c1e0ebfb0ec1cc474c662c90dc4c67e5c" => :mavericks
-    sha256 "c5b02614ef51251e5e380afe7f91aa28b03f0d03283102490c58785efed5e590" => :mountain_lion
+    cellar :any_skip_relocation
+    sha256 "a8803c091ada5f7d377f35165ffed56cec91ec608a82e6b0fbdca96d28efb7e5" => :el_capitan
+    sha256 "a7d0d5fed7752f3666acd19217afb4ce5b3fc04c2b8ceda232590cf890ae0b3c" => :yosemite
+    sha256 "69f0a42d4aa65b7ea0afb7f07d77a830ed547555befa9bc0281dc0248eca2188" => :mavericks
   end
 
   head do
@@ -28,6 +27,7 @@ class YoutubeDl < Formula
     man1.install "youtube-dl.1"
     bash_completion.install "youtube-dl.bash-completion"
     zsh_completion.install "youtube-dl.zsh" => "_youtube-dl"
+    fish_completion.install "youtube-dl.fish"
   end
 
   def caveats
@@ -36,5 +36,6 @@ class YoutubeDl < Formula
 
   test do
     system "#{bin}/youtube-dl", "--simulate", "https://www.youtube.com/watch?v=he2a4xK8ctk"
+    system "#{bin}/youtube-dl", "--simulate", "--yes-playlist", "https://www.youtube.com/watch?v=AEhULv4ruL4&list=PLZdCLR02grLrl5ie970A24kvti21hGiOf"
   end
 end

@@ -1,4 +1,5 @@
 class Kes < Formula
+  desc "Fork of the es shell based on the rc command interpreter"
   homepage "https://github.com/epilnivek/kes"
   url "https://github.com/epilnivek/kes/archive/v0.9.tar.gz"
   sha256 "d0db16ba7892d9692cacd552d684f03a9d0333ba0e7b629a998fa9c127ef050e"
@@ -7,12 +8,15 @@ class Kes < Formula
 
   bottle do
     cellar :any
-    sha256 "84db02dd57749a28718482893d9c032c7056ddc32ea9d305d38172ca14199c80" => :yosemite
-    sha256 "b07636ad0d38972397fcc64059b2e5505110400415e41ff0417ecccb71fcff38" => :mavericks
-    sha256 "a736dd5aa01f8a8011f6a05fe82ba43954fdf0f3037e483c96bfda9ee7591c48" => :mountain_lion
+    revision 1
+    sha256 "815f563b2241d50bccb124ce4e8ad8b96ed73ec1445463248063387f0d7846aa" => :el_capitan
+    sha256 "1c3cbda6f56cedc9998f90db05a0081773d950e27fde2f8b90ad487c9b338c19" => :yosemite
+    sha256 "0a44427107749d609577253273d6b7b5b4f81b06ad29660b0d5802d5e5f71f40" => :mavericks
   end
 
   depends_on "readline"
+
+  conflicts_with "es", :because => "both install 'es' binary"
 
   def install
     system "./configure", "--prefix=#{prefix}",

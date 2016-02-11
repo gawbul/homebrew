@@ -1,14 +1,14 @@
 class YamlCpp < Formula
-  homepage "https://code.google.com/p/yaml-cpp/"
-  url "https://yaml-cpp.googlecode.com/files/yaml-cpp-0.5.1.tar.gz"
-  sha256 "3e7c9052b43d987d41819a203d97fc45de4eed3ec67e0fdb14265c3d11046f06"
+  desc "C++ YAML parser and emitter for YAML 1.2 spec"
+  homepage "https://github.com/jbeder/yaml-cpp"
+  url "https://github.com/jbeder/yaml-cpp/archive/release-0.5.3.tar.gz"
+  sha256 "ac50a27a201d16dc69a881b80ad39a7be66c4d755eda1f76c3a68781b922af8f"
 
   bottle do
     cellar :any
-    revision 1
-    sha256 "90e07cbad706bc9e3052e91018a2389c8a592e700b0a2c3933d253f933e2c554" => :yosemite
-    sha256 "52257d4f7c38fb6baadfed2f8ed4c0b1731ec0b019bfe463087246b7b3e806f5" => :mavericks
-    sha256 "ed92a64681670a01dbe3113a900b614798179153bbecbf3cea1b24845ad3fa80" => :mountain_lion
+    sha256 "20b38c2f7c47550b458cb5b6f054795d90f4955d2525656e6d713cdbe7d451b1" => :el_capitan
+    sha256 "e0a51ff0b33568695412fe43cdc51b26642ae46dfb6dac56b813295057c91bb6" => :yosemite
+    sha256 "c779f86632b38472e022ad91f0f5ddb0f399fd547d36cbc5494a76c0f6becd48" => :mavericks
   end
 
   option :cxx11
@@ -17,7 +17,7 @@ class YamlCpp < Formula
 
   depends_on "cmake" => :build
 
-  if build.cxx11?
+  if build.cxx11? && MacOS.version < :mavericks
     depends_on "boost" => "c++11"
   else
     depends_on "boost"

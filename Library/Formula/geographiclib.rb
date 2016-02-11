@@ -1,14 +1,14 @@
-require "formula"
 class Geographiclib < Formula
+  desc "C++ geography library"
   homepage "http://geographiclib.sourceforge.net/"
-  url "https://downloads.sourceforge.net/project/geographiclib/distrib/GeographicLib-1.42.tar.gz"
-  sha1 "cb1cd87d0e00bffb1d9192d13e83b38deb1a4266"
+  url "https://downloads.sourceforge.net/project/geographiclib/distrib/GeographicLib-1.45.tar.gz"
+  sha256 "fbcd9fc9b10de0830f5cb57665dc675ae61f81b370873bb4b95540d569410dae"
 
   bottle do
     cellar :any
-    sha256 "85974a3b1c23fd85879e1c1e0afeebd0d13302f832aecf18278d03fb64fc0ae3" => :yosemite
-    sha256 "d07574775c89c45ff11322fbcca088b0834852ceb4ff034c5352c3bbfeceeaed" => :mavericks
-    sha256 "ea3cee78c323be2dce4ac5f3d3e7206fd737dc9bdbd5788fc0bd3d72ec3789be" => :mountain_lion
+    sha256 "f75da04b7eac8e50a1fdd175ff6daadb6aecb3ae85751bec836ee83d766e03f8" => :el_capitan
+    sha256 "cbcf90ea69d31a765d8ecaeeb882de08f20c4248e446338a8d6dda01317d7ecb" => :yosemite
+    sha256 "9abce610d57e2afae2b91cf7cf23496a01c0a613142167c14fce33a429804380" => :mavericks
   end
 
   depends_on "cmake" => :build
@@ -21,6 +21,6 @@ class Geographiclib < Formula
   end
 
   test do
-    system "GeoConvert", "-p", "-3", "-m", "--input-string", "33.3 44.4"
+    system bin/"GeoConvert", "-p", "-3", "-m", "--input-string", "33.3 44.4"
   end
 end

@@ -1,6 +1,7 @@
 require "language/go"
 
 class Pup < Formula
+  desc "Parse HTML at the command-line"
   homepage "https://github.com/EricChiang/pup"
   url "https://github.com/ericchiang/pup/archive/v0.3.9.tar.gz"
   sha256 "5e59805edf84d73b2b4c58fe5aeb9a12fc70c028b4aaf58ded6b91ff418b0dda"
@@ -8,7 +9,8 @@ class Pup < Formula
   head "https://github.com/EricChiang/pup.git"
 
   bottle do
-    cellar :any
+    cellar :any_skip_relocation
+    sha256 "e3766f1c194ece7e6eea245627c6ca2ae83d7a7cd33dfaf61da53ad85577dfd6" => :el_capitan
     sha256 "0c3f2f89d57313b4d5d90a73c39e5187470e7dd9f35a0d8b030d518f69b21766" => :yosemite
     sha256 "5bc9ab2b8ecb14048115c876bf77a7490139715d3250407785159aa2b72faf8f" => :mavericks
     sha256 "da53aea34a10ecba854eb3f65b451e99fa4dbe5134261ef2deadff8266ff49e2" => :mountain_lion

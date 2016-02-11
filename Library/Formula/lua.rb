@@ -1,14 +1,21 @@
 class Lua < Formula
+  desc "Powerful, lightweight programming language"
   homepage "http://www.lua.org/"
-  url "http://www.lua.org/ftp/lua-5.2.3.tar.gz"
-  mirror "https://mirrors.kernel.org/debian/pool/main/l/lua5.2/lua5.2_5.2.3.orig.tar.gz"
-  sha256 "13c2fb97961381f7d06d5b5cea55b743c163800896fd5c5e2356201d3619002d"
-  revision 2
+  url "http://www.lua.org/ftp/lua-5.2.4.tar.gz"
+  sha256 "b9e2e4aad6789b3b63a056d442f7b39f0ecfca3ae0f1fc0ae4e9614401b69f4b"
+  revision 3
 
   bottle do
-    sha256 "fb2d346b786331f1b71ff793b52274702f9daa3a52c49b336aea4e50bd4232ed" => :yosemite
-    sha256 "05f8ad2e915eef8b48ee99e74cc7e451301d2632c1c8494a592e1a42a8880f75" => :mavericks
-    sha256 "b334c5254a66b026c1944db77c0cb41f3cd5330575463ec5eb51334c5eb8f68b" => :mountain_lion
+    cellar :any
+    sha256 "5e52670b9b9c2554018545afcc13a08efde638aab521d39740c273992fc65922" => :el_capitan
+    sha256 "3a1f5bfe0fd490c96e933b0726d327079b6a1cd6b9e881440173351ff9a349ad" => :yosemite
+    sha256 "a84d3ebd9afa4a61b0120471e5a0dfcc670d294701a64edebd25fcc815fe76f8" => :mavericks
+  end
+
+  def pour_bottle?
+    # DomT4: I'm pretty sure this can be fixed, so don't leave this in place forever.
+    # https://github.com/Homebrew/homebrew/issues/44619
+    HOMEBREW_PREFIX.to_s == "/usr/local"
   end
 
   fails_with :llvm do
@@ -43,12 +50,15 @@ class Lua < Formula
   end
 
   resource "luarocks" do
-    url "https://github.com/keplerproject/luarocks/archive/v2.2.1.tar.gz"
-    sha256 "30e5bd99f82f5e3ea174572c1831f9ff83dfe37727f9fcfc89168b4572193571"
+    url "https://keplerproject.github.io/luarocks/releases/luarocks-2.3.0.tar.gz"
+    sha256 "68e38feeb66052e29ad1935a71b875194ed8b9c67c2223af5f4d4e3e2464ed97"
   end
 
   def install
     ENV.universal_binary if build.universal?
+
+    # Subtitute formula prefix in `src/Makefile` for install name (dylib ID).
+    inreplace "src/Makefile", "@LUA_PREFIX@", prefix
 
     # Use our CC/CFLAGS to compile.
     inreplace "src/Makefile" do |s|
@@ -70,7 +80,7 @@ class Lua < Formula
     bin.install_symlink "lua" => "lua-5.2"
     bin.install_symlink "luac" => "luac5.2"
     bin.install_symlink "luac" => "luac-5.2"
-    include.install_symlink include => "#{include}/lua5.2"
+    (include/"lua5.2").install_symlink include.children
     (lib/"pkgconfig").install_symlink "lua.pc" => "lua5.2.pc"
     (lib/"pkgconfig").install_symlink "lua.pc" => "lua-5.2.pc"
 
@@ -82,13 +92,15 @@ class Lua < Formula
 
         system "./configure", "--prefix=#{libexec}", "--rocks-tree=#{HOMEBREW_PREFIX}",
                               "--sysconfdir=#{etc}/luarocks52", "--with-lua=#{prefix}",
-                              "--lua-version=5.2", "--versioned-rocks-dir", "--force-config=#{etc}/luarocks52"
+                              "--lua-version=5.2", "--versioned-rocks-dir"
         system "make", "build"
         system "make", "install"
 
         (share+"lua/5.2/luarocks").install_symlink Dir["#{libexec}/share/lua/5.2/luarocks/*"]
         bin.install_symlink libexec/"bin/luarocks-5.2"
         bin.install_symlink libexec/"bin/luarocks-admin-5.2"
+        bin.install_symlink libexec/"bin/luarocks"
+        bin.install_symlink libexec/"bin/luarocks-admin"
 
         # This block ensures luarock exec scripts don't break across updates.
         inreplace libexec/"share/lua/5.2/luarocks/site_config.lua" do |s|
@@ -103,8 +115,8 @@ class Lua < Formula
 
   def pc_file; <<-EOS.undent
     V= 5.2
-    R= 5.2.3
-    prefix=#{HOMEBREW_PREFIX}
+    R= 5.2.4
+    prefix=#{prefix}
     INSTALL_BIN= ${prefix}/bin
     INSTALL_INC= ${prefix}/include
     INSTALL_LIB= ${prefix}/lib
@@ -117,7 +129,7 @@ class Lua < Formula
 
     Name: Lua
     Description: An Extensible Extension Language
-    Version: 5.2.3
+    Version: 5.2.4
     Requires:
     Libs: -L${libdir} -llua -lm
     Cflags: -I${includedir}
@@ -131,9 +143,6 @@ class Lua < Formula
     This is, for now, unavoidable. If this is troublesome for you, you can build
     rocks with the `--tree=` command to a special, non-conflicting location and
     then add that to your `$PATH`.
-
-    If you have existing Rocks trees in $HOME, you will need to migrate them to the new
-    location manually. You will only have to do this once.
     EOS
   end
 
@@ -158,7 +167,7 @@ index bd9515f..5940ba9 100644
  TO_BIN= lua luac
  TO_INC= lua.h luaconf.h lualib.h lauxlib.h lua.hpp
 -TO_LIB= liblua.a
-+TO_LIB= liblua.5.2.3.dylib
++TO_LIB= liblua.5.2.4.dylib
  TO_MAN= lua.1 luac.1
 
  # Lua version and release.
@@ -166,7 +175,7 @@ index bd9515f..5940ba9 100644
 	cd src && $(INSTALL_DATA) $(TO_INC) $(INSTALL_INC)
 	cd src && $(INSTALL_DATA) $(TO_LIB) $(INSTALL_LIB)
 	cd doc && $(INSTALL_DATA) $(TO_MAN) $(INSTALL_MAN)
-+	ln -s -f liblua.5.2.3.dylib $(INSTALL_LIB)/liblua.5.2.dylib
++	ln -s -f liblua.5.2.4.dylib $(INSTALL_LIB)/liblua.5.2.dylib
 +	ln -s -f liblua.5.2.dylib $(INSTALL_LIB)/liblua.dylib
 
  uninstall:
@@ -180,7 +189,7 @@ index 8c9ee67..7f92407 100644
  PLATS= aix ansi bsd freebsd generic linux macosx mingw posix solaris
 
 -LUA_A=	liblua.a
-+LUA_A=	liblua.5.2.3.dylib
++LUA_A=	liblua.5.2.4.dylib
  CORE_O=	lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
 	lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o ltable.o \
 	ltm.o lundump.o lvm.o lzio.o
@@ -190,13 +199,13 @@ index 8c9ee67..7f92407 100644
  $(LUA_A): $(BASE_O)
 -	$(AR) $@ $(BASE_O)
 -	$(RANLIB) $@
-+	$(CC) -dynamiclib -install_name HOMEBREW_PREFIX/lib/liblua.5.2.dylib \
-+		-compatibility_version 5.2 -current_version 5.2.3 \
-+		-o liblua.5.2.3.dylib $^
++	$(CC) -dynamiclib -install_name @LUA_PREFIX@/lib/liblua.5.2.dylib \
++		-compatibility_version 5.2 -current_version 5.2.4 \
++		-o liblua.5.2.4.dylib $^
 
  $(LUA_T): $(LUA_O) $(LUA_A)
 -	$(CC) -o $@ $(LDFLAGS) $(LUA_O) $(LUA_A) $(LIBS)
-+	$(CC) -fno-common $(MYLDFLAGS) -o $@ $(LUA_O) $(LUA_A) -L. -llua.5.2.3 $(LIBS)
++	$(CC) -fno-common $(MYLDFLAGS) -o $@ $(LUA_O) $(LUA_A) -L. -llua.5.2.4 $(LIBS)
 
  $(LUAC_T): $(LUAC_O) $(LUA_A)
 	$(CC) -o $@ $(LDFLAGS) $(LUAC_O) $(LUA_A) $(LIBS)

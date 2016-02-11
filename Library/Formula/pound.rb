@@ -1,4 +1,5 @@
 class Pound < Formula
+  desc "Reverse proxy, load balancer and HTTPS front-end for web servers"
   homepage "http://www.apsis.ch/pound"
   url "http://www.apsis.ch/pound/Pound-2.7.tgz"
   sha256 "cdfbf5a7e8dc8fbbe0d6c1e83cd3bd3f2472160aac65684bb01ef661c626a8e4"
@@ -11,7 +12,7 @@ class Pound < Formula
 
   depends_on "openssl"
   depends_on "pcre"
-  depends_on "google-perftools" => :recommended
+  depends_on "gperftools" => :recommended
 
   def install
     system "./configure", "--prefix=#{prefix}", "--disable-tcmalloc"

@@ -1,27 +1,39 @@
 require "language/go"
 
 class Gauge < Formula
-homepage "http://getgauge.io"
-  url "https://github.com/getgauge/gauge/archive/v0.1.3.tar.gz"
-  sha1 "e57e7e41006cc56999757c9b7e4f41770b912d96"
+  desc "Test automation tool that supports executable documentation"
+  homepage "http://getgauge.io"
+  url "https://github.com/getgauge/gauge/archive/v0.3.1.tar.gz"
+  sha256 "a78fca79b562f39cc97a9aedf8e7029e6ed1298342930c6074496a1398ee52c6"
+  head "https://github.com/getgauge/gauge.git"
 
   bottle do
-    cellar :any
-    sha256 "26944fa402a063917c7278d28752512b8735eab62678933b44fbe290426bca47" => :yosemite
-    sha256 "e23a370369f7a647d84c2ad0889180a051d3757924c74f4a834e4b07ca71dff4" => :mavericks
-    sha256 "624cd5274c709149fa26d5bdd6224836e229c2d0b900ee49687b5ae5e6a492cd" => :mountain_lion
+    cellar :any_skip_relocation
+    sha256 "a0644ffac4b61510575a92517dc43029e875b74b7997266fa18a6b25cbd07e07" => :el_capitan
+    sha256 "da7039db25462b39f8292dad2085765dd01f28a46848bedfc915513704c9ffe1" => :yosemite
+    sha256 "f6950f13c3603e3f5bbabc747e61e3ac6d3a6421a23e6b96b6c523dafa3b45ee" => :mavericks
   end
 
   depends_on "go" => :build
 
-  go_resource "github.com/golang/protobuf" do
-    url "https://github.com/golang/protobuf.git",
-        :revision => "7f07925444bb51fa4cf9dfe6f7661876f8852275"
-  end
-
   go_resource "github.com/getgauge/common" do
     url "https://github.com/getgauge/common.git",
-        :revision => "f81990f732c85813af305a8f0c862e3c21138f37"
+        :revision => "6d719362535ada9a07d655b65f8bd5dfd818fe33"
+  end
+
+  go_resource "github.com/daviddengcn/go-colortext" do
+    url "https://github.com/daviddengcn/go-colortext.git",
+      :revision => "3b18c8575a432453d41fdafb340099fff5bba2f7"
+  end
+
+  go_resource "github.com/golang/protobuf" do
+    url "https://github.com/golang/protobuf.git",
+        :revision => "68415e7123da32b07eab49c96d2c4d6158360e9b"
+  end
+
+  go_resource "github.com/mattn/go-isatty" do
+    url "https://github.com/mattn/go-isatty.git",
+        :revision => "56b76bdf51f7708750eac80fa38b952bb9f32639"
   end
 
   go_resource "github.com/getgauge/mflag" do
@@ -51,9 +63,9 @@ homepage "http://getgauge.io"
         :revision => "7cbffbaada472bc302cbaca51c1d5ed2682eb509"
   end
 
-  go_resource "github.com/wsxiaoys/terminal" do
-    url "https://github.com/wsxiaoys/terminal.git",
-        :revision => "9dcaf1d63119a8ac00eef82270eaef08b6aa2328"
+  go_resource "github.com/apoorvam/goterminal" do
+    url "https://github.com/apoorvam/goterminal.git",
+        :revision => "4d296b6c70d14de84a3ddbddb11a2fba3babd5e6"
   end
 
   go_resource "gopkg.in/fsnotify.v1" do
@@ -64,18 +76,18 @@ homepage "http://getgauge.io"
 
   def install
     ENV["GOPATH"] = buildpath
-    gaugePath = buildpath/"src/github.com/getgauge"
-    mkdir_p gaugePath
-    ln_s buildpath, gaugePath/"gauge"
+    gauge_path = buildpath/"src/github.com/getgauge"
+    mkdir_p gauge_path
+    ln_s buildpath, gauge_path/"gauge"
     Language::Go.stage_deps resources, buildpath/"src"
 
-    cd gaugePath/"gauge" do
+    cd gauge_path/"gauge" do
       system "go", "run", "build/make.go"
       system "go", "run", "build/make.go", "--install", "--prefix", prefix
     end
   end
 
   test do
-    system "gauge", "--init", "java"
+    system bin/"gauge", "-v"
   end
 end

@@ -1,4 +1,5 @@
 class Pdksh < Formula
+  desc "Public domain version of the Korn shell"
   homepage "http://www.cs.mun.ca/~michael/pdksh/"
   url "http://www.cs.mun.ca/~michael/pdksh/files/pdksh-5.2.14.tar.gz"
   sha256 "ab15bcdd50f291edc632bca351b2edce5405d4f2ce3854d3d548d721ab9bbfa6"
@@ -20,8 +21,8 @@ class Pdksh < Formula
     sha256 "82041113e0b3aeca57bb9b161257b43d9f8eba95fd450d2287666e77e6209afd"
   end
 
-  patch :p0 do # Use `sort -k 3n -k 1` instead of `sort +2n +0n`.
-    url "https://trac.macports.org/raw-attachment/ticket/13165/patch-siglist.sh"
+  patch :p0 do # Use `sort -k 3n -k 1` instead of `sort +2n +0n`, via MacPorts.
+    url "https://raw.githubusercontent.com/Homebrew/patches/af7a9de9/pdksh/patch-siglist.sh"
     sha256 "23a3b4cbf67886c358a26818a95f9b39304d0aab82dead78d5438b633a0917bc"
   end
 

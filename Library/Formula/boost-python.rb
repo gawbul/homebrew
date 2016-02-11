@@ -1,41 +1,22 @@
-class UniversalPython < Requirement
-  satisfy(:build_env => false) { archs_for_command("python").universal? }
-
-  def message; <<-EOS.undent
-    A universal build was requested, but Python is not a universal build
-
-    Boost compiles against the Python it finds in the path; if this Python
-    is not a universal build then linking will likely fail.
-    EOS
-  end
-end
-
-class UniversalPython3 < Requirement
-  satisfy(:build_env => false) { archs_for_command("python3").universal? }
-
-  def message; <<-EOS.undent
-    A universal build was requested, but Python 3 is not a universal build
-
-    Boost compiles against the Python 3 it finds in the path; if this Python
-    is not a universal build then linking will likely fail.
-    EOS
-  end
-end
-
 class BoostPython < Formula
+  desc "C++ library for C++/Python interoperability"
   homepage "http://www.boost.org"
-  url "https://downloads.sourceforge.net/project/boost/boost/1.58.0/boost_1_58_0.tar.bz2"
-  sha256 "fdfc204fc33ec79c99b9a74944c3e54bd78be4f7f15e260c0e2700a36dc7d3e5"
-
+  url "https://downloads.sourceforge.net/project/boost/boost/1.60.0/boost_1_60_0.tar.bz2"
+  sha256 "686affff989ac2488f79a97b9479efb9f2abae035b5ed4d8226de6857933fd3b"
   head "https://github.com/boostorg/boost.git"
+
+  bottle do
+    cellar :any
+    sha256 "c3d8a80d9bb7783ef7e8b3018ed5feaaa8d1f32a306ba4b75bd3a45629f57872" => :el_capitan
+    sha256 "37e1c31ebae10162368b496fbe377b3b36fa007d1dbf14325686df717c6ce339" => :yosemite
+    sha256 "aaba8bc94797a6f4d79ad7b07c8abc23fd915aa6699eb7a6948aa189cc8e6d78" => :mavericks
+  end
 
   option :universal
   option :cxx11
 
-  depends_on :python => :recommended
+  option "without-python", "Build without python 2 support"
   depends_on :python3 => :optional
-  depends_on UniversalPython if build.universal? && build.with?("python")
-  depends_on UniversalPython3 if build.universal? && build.with?("python3")
 
   if build.cxx11?
     depends_on "boost" => "c++11"
@@ -102,6 +83,7 @@ class BoostPython < Formula
 
     lib.install Dir["stage-python3/lib/*py*"] if build.with?("python3")
     lib.install Dir["stage-python/lib/*py*"] if build.with?("python")
+    doc.install Dir["libs/python/doc/*"]
   end
 
   test do
@@ -120,7 +102,7 @@ class BoostPython < Formula
                  `#{python}-config --ldflags`.strip).split(" ")
       system ENV.cxx, "-shared", "hello.cpp", "-lboost_#{python}", "-o", "hello.so", *pyflags
       output = `#{python} -c "from __future__ import print_function; import hello; print(hello.greet())"`
-      assert output.include?("Hello, world!")
+      assert_match "Hello, world!", output
     end
   end
 end

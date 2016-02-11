@@ -1,15 +1,16 @@
 class Syncthing < Formula
+  desc "Open source continuous file synchronization application"
   homepage "https://syncthing.net/"
   url "https://github.com/syncthing/syncthing.git",
-    :tag => "v0.11.5", :revision => "e4b57a978f754364aacea34978b296922b1a9378"
+    :tag => "v0.12.18", :revision => "459a3dc58c26439df1ad62fb8a6522b08201b119"
 
   head "https://github.com/syncthing/syncthing.git"
 
   bottle do
-    cellar :any
-    sha256 "c49244b166da22846bb01a60db763b1a710b604d7e5ba2afe360f014fe2b47f3" => :yosemite
-    sha256 "1ef182c7d3e1cbe27bcab41e3af706058b82d8fa79e6a80abad564299eaea9bb" => :mavericks
-    sha256 "29594155f3b04cfbb5597812ce7f20da2cdef64c2fd046a48ea339746d763c98" => :mountain_lion
+    cellar :any_skip_relocation
+    sha256 "71d453fe92ee8c9566d0904507b2236652f72a408d886843db0ee84e18d34507" => :el_capitan
+    sha256 "f7f1369083d1d02a6a6f84c1d357e6756dcb4b80d99afee921ad27e12c8cd5ee" => :yosemite
+    sha256 "697c6a6c82cd73eb56666c961f0b93d4e93a44486207e74c37bffaa905955b0b" => :mavericks
   end
 
   depends_on "go" => :build
@@ -34,8 +35,6 @@ class Syncthing < Formula
     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
     <plist version="1.0">
       <dict>
-        <key>KeepAlive</key>
-        <true/>
         <key>Label</key>
         <string>#{plist_name}</string>
         <key>ProgramArguments</key>
@@ -44,8 +43,13 @@ class Syncthing < Formula
           <string>-no-browser</string>
           <string>-no-restart</string>
         </array>
-        <key>RunAtLoad</key>
-        <true/>
+        <key>KeepAlive</key>
+        <dict>
+          <key>Crashed</key>
+          <true/>
+          <key>SuccessfulExit</key>
+          <false/>
+        </dict>
         <key>ProcessType</key>
         <string>Background</string>
         <key>StandardErrorPath</key>

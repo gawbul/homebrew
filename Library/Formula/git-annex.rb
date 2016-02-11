@@ -3,49 +3,63 @@ require "language/haskell"
 class GitAnnex < Formula
   include Language::Haskell::Cabal
 
+  desc "Manage files with git without checking in file contents"
   homepage "https://git-annex.branchable.com/"
-  url "https://hackage.haskell.org/package/git-annex-5.20150205/git-annex-5.20150205.tar.gz"
-  sha1 "5df6114cb029531e429e2b423f5ae7f755ffa390"
+  url "https://hackage.haskell.org/package/git-annex-6.20160126/git-annex-6.20160126.tar.gz"
+  sha256 "dc59f670a3d0bdb90db8fc6cadba8003708219bb0dc3d56867a9246d825c0d11"
+
+  head "git://git-annex.branchable.com/"
 
   bottle do
-    cellar :any
-    sha1 "fa9fa816e728479b6d4b3e058a6ea3544db4acc2" => :yosemite
-    sha1 "be634c33bc9f4aa337404e0f5cf78ec989b45e3b" => :mavericks
-    sha1 "bf687c017b26ac5694e466afd8fe996c7ea2c22b" => :mountain_lion
+    revision 1
+    sha256 "cae47a07807195ea29aad622784872207c1b8af3868ac25bb1fcd63835c620ef" => :el_capitan
+    sha256 "d68da09d6f22ec0aef7912ffa32f3f57c6ab46687192559c41d3a5cd5f81bd71" => :yosemite
+    sha256 "03597faf2810cf06d5b2f59c2f72d68c62087ca0ffd500c5c723d233883bc13b" => :mavericks
   end
 
-  depends_on "gcc" => :build
+  option "with-git-union-merge", "Build the git-union-merge tool"
+
   depends_on "ghc" => :build
   depends_on "cabal-install" => :build
   depends_on "pkg-config" => :build
-  # wget is workaround for http://git-annex.branchable.com/bugs/Build_fails_when_no_wget_avalible/
-  depends_on "wget" => :build
   depends_on "gsasl"
   depends_on "libidn"
   depends_on "gnutls"
-  depends_on "gmp"
   depends_on "quvi"
 
-  fails_with(:clang) { build 425 } # clang segfaults on Lion
-
   def install
-    cabal_sandbox do
-      cabal_install_tools "alex", "happy", "c2hs"
-      # gcc required to build gnuidn
-      gcc = Formula["gcc"]
-      cabal_install "--with-gcc=#{gcc.bin}/gcc-#{gcc.version_suffix}",
-                    "--only-dependencies",
-                    "--constraint=utf8-string==0.3.8" # use older utf8-string until 'feed' is updated
-      cabal_install "--prefix=#{prefix}"
+    install_cabal_package :using => ["alex", "happy", "c2hs"] do
+      # this can be made the default behavior again once git-union-merge builds properly when bottling
+      if build.with? "git-union-merge"
+        system "make", "git-union-merge", "PREFIX=#{prefix}"
+        bin.install "git-union-merge"
+        system "make", "git-union-merge.1", "PREFIX=#{prefix}"
+      end
     end
     bin.install_symlink "git-annex" => "git-annex-shell"
-    system "make", "git-annex.1", "git-annex-shell.1", "git-union-merge.1"
-    man1.install "git-annex.1", "git-annex-shell.1", "git-union-merge.1"
   end
 
   test do
     # make sure git can find git-annex
     ENV.prepend_path "PATH", bin
-    system "git", "annex", "test"
+    # We don't want this here or it gets "caught" by git-annex.
+    rm_r "Library/Python/2.7/lib/python/site-packages/homebrew.pth"
+
+    system "git", "init"
+    system "git", "annex", "init"
+    (testpath/"Hello.txt").write "Hello!"
+    assert !File.symlink?("Hello.txt")
+    assert_match "add Hello.txt ok", shell_output("git annex add .")
+    system "git", "commit", "-a", "-m", "Initial Commit"
+    assert File.symlink?("Hello.txt")
+
+    # The steps below are necessary to ensure the directory cleanly deletes.
+    # git-annex guards files in a way that isn't entirely friendly of automatically
+    # wiping temporary directories in the way `brew test` does at end of execution.
+    system "git", "rm", "Hello.txt", "-f"
+    system "git", "commit", "-a", "-m", "Farewell!"
+    system "git", "annex", "unused"
+    assert_match "dropunused 1 ok", shell_output("git annex dropunused 1 --force")
+    system "git", "annex", "uninit"
   end
 end

@@ -1,30 +1,36 @@
 class YleDl < Formula
+  desc "Download Yle videos from the command-line"
   homepage "https://aajanki.github.io/yle-dl/index-en.html"
-  url "https://github.com/aajanki/yle-dl/archive/2.7.1.tar.gz"
-  sha1 "041f212d56a981e1c53f6bdf042a281db965d6ed"
+  url "https://github.com/aajanki/yle-dl/archive/2.10.0.tar.gz"
+  sha256 "90d7286a4609ec200a059360faba0557000c82957399fda7db04d8860982ff4e"
 
   head "https://github.com/aajanki/yle-dl.git"
 
   bottle do
-    cellar :any
-    sha256 "89a090fbe194bca747d62bfe31e24a57995d46c613dfe6258a7a5c0850e3afbc" => :yosemite
-    sha256 "aa385837ea6e21d1f8cddb1d48784b071ef6bcc4a9692990c33f8cbefdffca85" => :mavericks
-    sha256 "6837e267471c067acaae575bf6f60da08a585f74c1134e50fe388e8506b4fafa" => :mountain_lion
+    cellar :any_skip_relocation
+    sha256 "4fe7b71d435029f54ae84524d986e38013aa1ceb88f755a9a44bfcde80c7a7ae" => :el_capitan
+    sha256 "8e79cd6285a2726cab3c5bf537e2be679c3f61b23121ed625f64b24a544412da" => :yosemite
+    sha256 "e0a490e1011a7735895b2ec6fdd92efc8e9281b19f008bf47dfd9c82d0a11df9" => :mavericks
   end
 
   depends_on "rtmpdump"
   depends_on :python if MacOS.version <= :snow_leopard
+  depends_on "homebrew/php/php70-mcrypt" => :optional
+  depends_on "homebrew/php/php56-mcrypt" => :optional
+  depends_on "homebrew/php/php55-mcrypt" => :optional
+  depends_on "homebrew/php/php54-mcrypt" => :optional
+  depends_on "homebrew/php/php53-mcrypt" => :optional
 
   resource "AdobeHDS.php" do
     # NOTE: yle-dl always installs the HEAD version of AdobeHDS.php. We use a specific commit.
     # Check if there are bugfixes at https://github.com/K-S-V/Scripts/commits/master/AdobeHDS.php
-    url "https://raw.githubusercontent.com/K-S-V/Scripts/9c1afcc4b452cb9bf75f8653495c80180e2bf086/AdobeHDS.php"
-    sha1 "bd562cb02087c83eea70a4e9a306be27980ee12c"
+    url "https://raw.githubusercontent.com/K-S-V/Scripts/7e1c8d844e9907ea6407d74bc1d784e71ccb3ca3/AdobeHDS.php"
+    sha256 "61a012547a97ebee3342ba37f9d01c2eed9cdd08674fc9d59cc1b266ce80494e"
   end
 
   resource "pycrypto" do
     url "https://pypi.python.org/packages/source/p/pycrypto/pycrypto-2.6.1.tar.gz"
-    sha1 "aeda3ed41caf1766409d4efc689b9ca30ad6aeb2"
+    sha256 "f2ce1e989b272cfcb677616763e0a2e7ec659effa67a88aa92b3a65528f60a3c"
   end
 
   def install
@@ -33,13 +39,24 @@ class YleDl < Formula
       system "python", *Language::Python.setup_install_args(libexec/"vendor")
     end
 
-    resource("AdobeHDS.php").stage(share/"yle-dl")
+    resource("AdobeHDS.php").stage(pkgshare)
     system "make", "install", "SYS=darwin", "prefix=#{prefix}", "mandir=#{man}"
 
     # change shebang to plain python (python2 is not guaranteed to exist)
     inreplace bin/"yle-dl", "#!/usr/bin/env python2", "#!/usr/bin/env python"
 
     bin.env_script_all_files(libexec/"bin", :PYTHONPATH => ENV["PYTHONPATH"])
+  end
+
+  def caveats; <<-EOS.undent
+    yle-dl requires the mcrypt PHP module which you can either install manually or install
+    mcrypt from the PHP homebrew tap. You can also install yle-dl with one of optional dependencies
+    which to automatically tap the php tap and download mcrypt module for you.
+
+      brew info yle-dl
+
+    for further info.
+    EOS
   end
 
   test do

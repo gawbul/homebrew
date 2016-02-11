@@ -3,16 +3,15 @@ require "language/haskell"
 class PandocCiteproc < Formula
   include Language::Haskell::Cabal
 
+  desc "Library and executable for using citeproc with pandoc"
   homepage "https://github.com/jgm/pandoc-citeproc"
-  url "https://github.com/jgm/pandoc-citeproc/archive/0.7.0.1.tar.gz"
-  sha256 "f672af320b808706657dcf578f4beef1b410cab744eab0707213e76687bd7a07"
-
-  revision 1
+  url "https://hackage.haskell.org/package/pandoc-citeproc-0.9/pandoc-citeproc-0.9.tar.gz"
+  sha256 "ae880aa27b5fcaf93886844bd9473c764329dc96211482bf014f350335887fbd"
 
   bottle do
-    sha256 "304c122d67adbcff13fd7fb43852234c9138983d931c45b53bf6ab0160b16a98" => :yosemite
-    sha256 "72e0a53626551fd9f889879b86903c8b2775e3f688f57889bb09a1d7f62abdc6" => :mavericks
-    sha256 "441ca80c3bf92cc1b6416e796fc64b57eabe122619c96a944dd6029dade3541c" => :mountain_lion
+    sha256 "8b2b518f68c14e679ddb069386dd2f158c2c1a36a90ac7f6c321abbc54467c4c" => :el_capitan
+    sha256 "c544453b5305e5f317ca820c0df40edbe791992288d29bd1e777516d790d8c38" => :yosemite
+    sha256 "5b5ca08d646fab7ba22888540904fab55606ca14e2e526d582a170b55aca76c6" => :mavericks
   end
 
   depends_on "ghc" => :build
@@ -20,11 +19,9 @@ class PandocCiteproc < Formula
   depends_on "pandoc"
 
   def install
-    cabal_sandbox do
-      cabal_install "--only-dependencies"
-      cabal_install "--prefix=#{prefix}"
-    end
-    cabal_clean_lib
+    args = []
+    args << "--constraint=cryptonite -support_aesni" if MacOS.version <= :lion
+    install_cabal_package *args
   end
 
   test do

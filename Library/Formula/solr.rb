@@ -1,8 +1,11 @@
 class Solr < Formula
+  desc "Enterprise search platform from the Apache Lucene project"
   homepage "https://lucene.apache.org/solr/"
-  url "https://www.apache.org/dyn/closer.cgi?path=lucene/solr/5.1.0/solr-5.1.0.tgz"
-  mirror "https://archive.apache.org/dist/lucene/solr/5.1.0/solr-5.1.0.tgz"
-  sha256 "8718cbfb789a170d210b0b4adbe4fd8187ecdc67c5348ed9d551578087d8a628"
+  url "https://www.apache.org/dyn/closer.cgi?path=lucene/solr/5.4.1/solr-5.4.1.tgz"
+  mirror "https://archive.apache.org/dist/lucene/solr/5.4.1/solr-5.4.1.tgz"
+  sha256 "3e4b4ec7bd728b49b2ebc3dbe8f3d1ef89fded4ab86b9e2f856bedd58c99f28b"
+
+  bottle :unneeded
 
   depends_on :java
 
@@ -11,9 +14,21 @@ class Solr < Formula
   def install
     libexec.install Dir["*"]
     bin.install "#{libexec}/bin/solr"
+    bin.install "#{libexec}/bin/post"
+    bin.install "#{libexec}/bin/oom_solr.sh"
     share.install "#{libexec}/bin/solr.in.sh"
     prefix.install "#{libexec}/example"
     prefix.install "#{libexec}/server"
+
+    # Fix the classpath for the post tool
+    inreplace "#{bin}/post", '"$SOLR_TIP/dist"', "#{libexec}/dist"
+
+    # Fix the paths in the sample solrconfig.xml files
+    Dir.glob(["#{prefix}/example/**/solrconfig.xml",
+      "#{prefix}/**/data_driven_schema_configs/**/solrconfig.xml",
+      "#{prefix}/**/sample_techproducts_configs/**/solrconfig.xml"]) do |f|
+      inreplace f, ":../../../..}/", "}/libexec/"
+    end
   end
 
   plist_options :manual => "solr start"
@@ -43,6 +58,6 @@ class Solr < Formula
   end
 
   test do
-    system "solr"
+    system bin/"solr"
   end
 end

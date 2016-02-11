@@ -3,37 +3,40 @@ require "language/haskell"
 class Pandoc < Formula
   include Language::Haskell::Cabal
 
+  desc "Swiss-army knife of markup format conversion"
   homepage "http://pandoc.org"
-  url "https://hackage.haskell.org/package/pandoc-1.13.2.1/pandoc-1.13.2.1.tar.gz"
-  sha256 "66da6eb690b8de41eccf05620e165630854d74c08cf69dbfb68d0ea84589785f"
+  url "https://hackage.haskell.org/package/pandoc-1.16.0.2/pandoc-1.16.0.2.tar.gz"
+  sha256 "f5f3262ef4574a111936fea0118557c523a8b0eaa7fea84b64b377b20a80f348"
 
   head "https://github.com/jgm/pandoc.git"
 
   bottle do
-    sha256 "e9df02321a7129c78dec25d350730cd6e9197d31ef96c800f6462535c9411749" => :yosemite
-    sha256 "471cbe82c36664f90d43736c2169048cf2735b21895a6da936cf46620b963444" => :mavericks
-    sha256 "0fa5678764cea7319f9f09bca10e2413157f0310ac2067efc9d3d7cd6c02195a" => :mountain_lion
+    sha256 "a424ef179a8c8e3db8002e80bb1be851157e9b7bc809bdf62630bd0e7cbc913b" => :el_capitan
+    sha256 "7fb2340adfe9ac8ed39d844440e04bdf0072e2afa704140f0fe44b07ef905db2" => :yosemite
+    sha256 "d3d82a8526221b647debec02301e453eda13fa2df5eea6e1ae6b48cf15281a2f" => :mavericks
   end
 
   depends_on "ghc" => :build
   depends_on "cabal-install" => :build
   depends_on "gmp"
 
-  fails_with :clang do
-    build 425
-    cause "clang segfaults on Lion"
-  end
-
   def install
-    cabal_sandbox do
-      cabal_install "--only-dependencies"
-      cabal_install "--prefix=#{prefix}"
-    end
-    cabal_clean_lib
+    args = []
+    args << "--constraint=cryptonite -support_aesni" if MacOS.version <= :lion
+    install_cabal_package *args
+    (bash_completion/"pandoc").write `#{bin}/pandoc --bash-completion`
   end
 
   test do
-    system "pandoc", "-o", testpath/"output.html", prefix/"README"
-    assert (testpath/"output.html").read.include? '<h1 id="synopsis">Synopsis</h1>'
+    input_markdown = <<-EOS.undent
+      # Homebrew
+
+      A package manager for humans. Cats should take a look at Tigerbrew.
+    EOS
+    expected_html = <<-EOS.undent
+      <h1 id="homebrew">Homebrew</h1>
+      <p>A package manager for humans. Cats should take a look at Tigerbrew.</p>
+    EOS
+    assert_equal expected_html, pipe_output("#{bin}/pandoc -f markdown -t html5", input_markdown)
   end
 end

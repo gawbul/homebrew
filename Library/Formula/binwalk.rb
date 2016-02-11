@@ -1,33 +1,21 @@
 class Binwalk < Formula
+  desc "Searches a binary image for embedded files and executable code"
   homepage "http://binwalk.org/"
-  revision 1
-  stable do
-    url "https://github.com/devttys0/binwalk/archive/v2.0.1.tar.gz"
-    sha256 "90ee8426d71e91b62dfe4a1446c457bc7835b475b28717859e275a0494403959"
-  end
+  url "https://github.com/devttys0/binwalk/archive/v2.1.1.tar.gz"
+  sha256 "1b70a5b03489d29f60fef18008a2164974234874faab48a4f47ec53d461d284a"
+  head "https://github.com/devttys0/binwalk.git"
 
   bottle do
-    revision 1
-    sha256 "93ee55895ace7e0dc5f0acacd763b7233993205250a40484d2a369abc1a8b09a" => :yosemite
-    sha256 "f7c486829bdec2d762fccc6a40e737fa224db3a33160a47ba634c202a9905f0a" => :mavericks
-    sha256 "224b9a15eb5381132b65196f3748ddd19ab5f4b3375a0a7e846d212dddbf1a41" => :mountain_lion
-  end
-
-  head do
-    url "https://github.com/devttys0/binwalk.git"
-
-    option "with-capstone", "Enable disasm options via capstone"
-    resource "capstone" do
-      url "https://pypi.python.org/packages/source/c/capstone/capstone-3.0.2.tar.gz"
-      sha256 "b32022fe956e940f8e67c17841dd3f6f1c50a60e451f9b5ce1f4dd2e5c5b3339"
-    end
+    sha256 "7c45d823c2fc4eae924ebda88a59fa1ea793bbc43346816a48da9f87931a13ec" => :el_capitan
+    sha256 "764a4275eb3ffa1317cdb9d38a9af75490717fb5eb0efd84b3968a11443a1a1e" => :yosemite
+    sha256 "8b5210a335b36d32040061b611ad122828877a7df8138dc544c566b16542fcee" => :mavericks
   end
 
   option "with-matplotlib", "Check for presence of matplotlib, which is required for entropy graphing support"
+  option "with-capstone", "Enable disasm options via capstone"
 
   depends_on "swig" => :build
   depends_on :fortran
-  depends_on "libmagic" => "with-python"
   depends_on "matplotlib" => :python if build.with? "matplotlib"
   depends_on "pyside"
   depends_on :python if MacOS.version <= :snow_leopard
@@ -41,13 +29,18 @@ class Binwalk < Formula
   end
 
   resource "numpy" do
-    url "https://downloads.sourceforge.net/project/numpy/NumPy/1.9.2/numpy-1.9.2.tar.gz"
-    sha256 "325e5f2b0b434ecb6e6882c7e1034cc6cdde3eeeea87dbc482575199a6aeef2a"
+    url "https://pypi.python.org/packages/source/n/numpy/numpy-1.10.2.tar.gz"
+    sha256 "23a3befdf955db4d616f8bb77b324680a80a323e0c42a7e8d7388ef578d8ffa9"
   end
 
   resource "scipy" do
-    url "https://downloads.sourceforge.net/project/scipy/scipy/0.15.1/scipy-0.15.1.tar.gz"
-    sha256 "a212cbc3b79e9a563aa45fc5c517b3499198bd7eb7e7be1e047568a5f48c259a"
+    url "https://downloads.sourceforge.net/project/scipy/scipy/0.16.1/scipy-0.16.1.tar.gz"
+    sha256 "ecd1efbb1c038accb0516151d1e6679809c6010288765eb5da6051550bf52260"
+  end
+
+  resource "capstone" do
+    url "https://pypi.python.org/packages/source/c/capstone/capstone-3.0.4.tar.gz"
+    sha256 "945d3b8c3646a1c3914824c416439e2cf2df8969dd722c8979cdcc23b40ad225"
   end
 
   def install
@@ -60,15 +53,10 @@ class Binwalk < Formula
       end
     end
 
-    if build.head?
-      ENV.prepend_create_path "PYTHONPATH", libexec/"lib/python2.7/site-packages"
-      system "python", *Language::Python.setup_install_args(libexec)
-      bin.install Dir["#{libexec}/bin/*"]
-      bin.env_script_all_files(libexec/"bin", :PYTHONPATH => ENV["PYTHONPATH"])
-    else
-      system "./configure", "--prefix=#{prefix}", "--disable-bundles"
-      system "make", "install"
-    end
+    ENV.prepend_create_path "PYTHONPATH", libexec/"lib/python2.7/site-packages"
+    system "python", *Language::Python.setup_install_args(libexec)
+    bin.install Dir["#{libexec}/bin/*"]
+    bin.env_script_all_files(libexec/"bin", :PYTHONPATH => ENV["PYTHONPATH"])
   end
 
   test do
