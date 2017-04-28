@@ -39,6 +39,8 @@ HOMEBREW_PREFIX = Pathname.new(ENV["HOMEBREW_PREFIX"])
 HOMEBREW_REPOSITORY = Pathname.new(ENV["HOMEBREW_REPOSITORY"])
 
 HOMEBREW_LIBRARY = Pathname.new(ENV["HOMEBREW_LIBRARY"])
+HOMEBREW_ENV_PATH = HOMEBREW_LIBRARY/"ENV"
+HOMEBREW_SHIMS_PATH = HOMEBREW_LIBRARY/"Homebrew/shims"
 HOMEBREW_CONTRIB = HOMEBREW_REPOSITORY/"Library/Contributions"
 
 # Where we store built products
@@ -50,7 +52,7 @@ HOMEBREW_LOGS = Pathname.new(ENV["HOMEBREW_LOGS"] || "~/Library/Logs/Homebrew/")
 HOMEBREW_TEMP = Pathname.new(ENV.fetch("HOMEBREW_TEMP", "/tmp"))
 
 unless defined? HOMEBREW_LIBRARY_PATH
-  HOMEBREW_LIBRARY_PATH = Pathname.new(__FILE__).realpath.parent.join("Homebrew")
+  HOMEBREW_LIBRARY_PATH = Pathname.new(__FILE__).realpath.parent
 end
 
 HOMEBREW_LOAD_PATH = HOMEBREW_LIBRARY_PATH
